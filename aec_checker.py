@@ -149,11 +149,11 @@ def getAECStatus(
                 except selenium.common.exceptions.NoSuchElementException:
                     pass
                 if not success_panel:
+                    time.sleep(0.1)  # Finish rendering
                     try:
                         current_captcha = driver.find_element(By.ID, CAPTCHA_INPUT_ID).get_attribute("value")
                         if not current_captcha:
                             # The form has been reset, as part of the submission process
-                            time.sleep(0.1)  # Finish rendering
                             send_driver_to_captcha(driver)
                             break
                     except selenium.common.exceptions.NoSuchElementException:
