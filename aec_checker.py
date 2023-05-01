@@ -105,7 +105,7 @@ def getAECStatus(
 
     time.sleep(0.1)
 
-    suburb_state = f"{str.upper(suburb)} ({state})"
+    suburb_state = f"{str.upper(suburb.strip())} ({state})"
     try:
         suburb_dropdown = Select(
             driver.find_element(By.ID, "ctl00_ContentPlaceHolderBody_DropdownSuburb")
@@ -117,7 +117,7 @@ def getAECStatus(
 
     elem = driver.find_element(By.ID, "ctl00_ContentPlaceHolderBody_textStreetName")
     elem.clear()
-    elem.send_keys(street)
+    elem.send_keys(street.strip())
 
     captcha_passed = False
     success_panel = None
@@ -259,6 +259,7 @@ def check_rows(input_filename, output_filename, skip: int,
                                        "local_government": status[3],
                                        "local_ward": status[4]})
                     writer.writerow(output_row)
+                    output_file.flush()  # Ensure we never lose any progress!
 
 
 def main():
