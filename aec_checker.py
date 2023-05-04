@@ -1,7 +1,7 @@
 #!python3
 import io
 import os
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 import selenium.common.exceptions
 from selenium import webdriver
@@ -48,6 +48,24 @@ EXPECTED_FIELDS = {
     "legal_name",
     "nationbuilder_id"
 }.union(PRIMARY_ADDRESSES)
+
+
+def learn_indices(membership_row) -> Dict[str, int]:
+    # DictReader is clearing people's middle names.
+    result = {}
+    for v, val in enumerate(membership_row):
+        if val in EXPECTED_FIELDS:
+            if val in result:
+                continue  # Prefer the first version
+            result[val] = v
+    return result
+
+
+def apply_indices(membership_row, headers) -> Dict[str, Any]:
+    result = {}
+    for key, index in headers.items():
+        result[key] = membership_row[index]
+    return result
 
 
 def get_given_names(membership_row: Dict[str, Optional[str]]):
@@ -227,10 +245,9 @@ def check_rows(input_filename, output_filename, skip: int,
     with get_driver() as driver:
         driver.get("https://check.aec.gov.au/")
         with io.open(input_filename) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=",")
-            if not EXPECTED_FIELDS.issubset(reader.fieldnames):
-                raise ValueError(f"Some fields are missing from this file: one of {', '.join(EXPECTED_FIELDS)}")
+            reader = csv.reader(csvfile, delimiter=",")
             row_count = 0
+            headers = None
             existing_output = os.path.exists(output_filename)
             with io.open(
                 output_filename,
@@ -241,6 +258,11 @@ def check_rows(input_filename, output_filename, skip: int,
                 if not existing_output:
                     writer.writeheader()
                 for membership_row in reader:
+                    if headers is None:
+                        headers = learn_indices(membership_row)
+                        continue
+                    else:
+                        membership_row = apply_indices(membership_row, headers=headers)
                     row_count += 1
                     output_row = {k: membership_row.get(k) for k in OUTPUT_FIELDS}
                     output_row["nationbuilder_link"] = nationbuilder_base + str(membership_row["nationbuilder_id"])
