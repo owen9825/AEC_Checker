@@ -45,12 +45,13 @@ EXPECTED_FIELDS = {
     "first_name",
     "middle_name",
     "last_name",
+    "legal_name",
     "nationbuilder_id"
 }.union(PRIMARY_ADDRESSES)
 
 
 def get_given_names(membership_row: Dict[str, Optional[str]]):
-    return (membership_row["first_name"] + " " + membership_row["middle_name"]).strip()
+    return ((membership_row["legal_name"] or membership_row["first_name"]) + " " + membership_row["middle_name"]).strip()
 
 
 def get_address_components(row: Dict[str, Optional[str]]) -> Tuple[
