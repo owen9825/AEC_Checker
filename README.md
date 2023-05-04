@@ -5,6 +5,7 @@ This program will iterate through a CSV file of members, and submit their detail
 ## Installation
 * [Install Python 3](https://www.python.org/downloads/)
 * Install the requirements: `pip install -r requirements.txt`
+* Install [Firefox](https://www.mozilla.org/en-US/firefox/new/)
 
 ## Execution
 At the command line, run:
